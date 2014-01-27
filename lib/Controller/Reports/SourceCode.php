@@ -33,11 +33,11 @@ class SourceCode {
     foreach (system_list('module_enabled') as $module => $module_info) {
       $name = l($module, $this->base_path, array('query' => array('module' => $module, 'path' => '/')));
       $path = './' . drupal_get_path('module', $module);
-      $rows[] = array($name, $path, $module);
+      $rows[$module] = array($name, $path);
     }
     
-    usort($rows, function($a, $b) {
-      return strnatcmp($a[2], $b[2]);
+    uksort($rows, function($a, $b) {
+      return strnatcmp($a, $b);
     });
     
     return array(
