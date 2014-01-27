@@ -91,7 +91,7 @@ class SourceCode {
         format_date($_stats[9], 'short'),
       );
     }
-
+    
     uksort($rows, function($a, $b) {
       // Parent directory first.
       if (is_dir($a) && '..' === substr($a, -2)) return -1;
@@ -107,10 +107,25 @@ class SourceCode {
       return strcmp(basename($a), basename($b)) < 0 ? -1 : 1;
     });
 
-    return array('#theme' => 'table',
-      '#header' => array('Name', 'UID', 'GID', 'Size', 'Modified'),
-      '#rows' => $rows
-    );
+    $output = theme('table', array(
+        'header' => array('Name', 'UID', 'GID', 'Size', 'Modified'), 
+        'rows' => $rows
+    ));
+    $output .= $this->renderModuleDirReadMe($dir);
+    
+    return $output;
+  }
+  
+  private function renderModuleDirReadMe($dir) {
+    if (is_file("{$dir}/README.txt")) {
+      return '<pre><code>'. file_get_contents("{$dir}/README.txt") .'</code></pre>';
+    }
+
+    if (is_file("{$dir}/README.md")) {
+      require_once at_library('parsedown') . '/Parsedown.php';
+      $output = file_get_contents("{$dir}/README.md");
+      return '<div class="readme parsedown">' . at_id(new \Parsedown())->text($output) . '</div>';
+    }
   }
 
   private function renderModuleFile($file) {
@@ -171,7 +186,7 @@ class SourceCode {
           break;
       }
     }
-
+    
     return drupal_get_form('at_ui_display_file', $file, $type);
   }
 }
