@@ -54,7 +54,8 @@ class SourceCode {
     $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
     $pow = min($pow, count($units) - 1);
 
-    return round($bytes, $precision) . ' ' . $units[$pow];
+    //return round($bytes, $precision) . ' ' . $units[$pow];
+    return round($bytes, 0) . ' ' . $units[$pow];
   }
 
   private function renderModuleDir($dir) {
@@ -111,7 +112,12 @@ class SourceCode {
         'header' => array('Name', 'UID', 'GID', 'Size', 'Modified'), 
         'rows' => $rows
     ));
-    $output .= $this->renderModuleDirReadMe($dir);
+    if ($this->renderModuleDirReadMe($dir)) {
+      $output .= theme('table', array(
+        'header' => array('README'),
+        'rows' => array(0 => array($this->renderModuleDirReadMe($dir))),
+      )); 
+    }
     
     return $output;
   }
