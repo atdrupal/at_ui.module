@@ -1,4 +1,7 @@
 <?php
+/**
+ * @file drush/at_services.inc
+ */
 
 /**
  * Callback for 'at_service' drush command.

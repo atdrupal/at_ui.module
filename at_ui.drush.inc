@@ -1,4 +1,7 @@
 <?php
+/**
+ * @file at_ui.drush.inc
+ */
 
 require_once dirname(__FILE__) . '/drush/at_services.inc';
 require_once dirname(__FILE__) . '/drush/at_twig.inc';
