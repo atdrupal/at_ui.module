@@ -49,3 +49,71 @@ function at_ui_menu_alter(&$menu) {
     $menu['block/%bean_delta/devel/render']['page arguments'] = array(1);
   }
 }
+
+/**
+ * Implements hook_theme_registry_alter().
+ * Move user_admin_permissions theme's processing to new place.
+ *
+ * @param type $theme_registry
+ */
+function at_ui_theme_registry_alter(&$theme_registry) {
+  $theme_registry['user_admin_permissions']['theme path'] = drupal_get_path('module', 'at_ui');
+  $theme_registry['user_admin_permissions']['function'] = 'at_ui_user_admin_permissions';
+  unset($theme_registry['user_admin_permissions']['includes']);
+}
+
+/**
+ * Move checkboxes to the left of the permissions if there is only one role.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - form: A render element representing the form.
+ *
+ * @ingroup themeable
+ */
+function at_ui_user_admin_permissions($variables) {
+  $form = $variables['form'];
+
+  $rids = element_children($form['checkboxes']);
+  if (count($rids) != 1) {
+    // Multiple roles.
+    module_load_include('inc', 'user', 'user.admin');
+    return theme_user_admin_permissions($variables);
+  }
+
+  // Single role.
+  $rid = reset($rids);
+
+  $roles = user_roles();
+  foreach (element_children($form['permission']) as $key) {
+    $row = array();
+    // Module name
+    if (is_numeric($key)) {
+      $row[] = array('data' => drupal_render($form['permission'][$key]), 'class' => array('module'), 'id' => 'module-' . $form['permission'][$key]['#id'], 'colspan' => count($form['role_names']['#value']) + 1);
+    }
+    else {
+      // Permission row.
+
+      // Checkbox.
+      $form['checkboxes'][$rid][$key]['#title'] = $roles[$rid] . ': ' . $form['permission'][$key]['#markup'];
+      $form['checkboxes'][$rid][$key]['#title_display'] = 'invisible';
+      $row[] = array('data' => drupal_render($form['checkboxes'][$rid][$key]), 'class' => array('checkbox'));
+
+      // Permission markup.
+      $row[] = array(
+        'data' => drupal_render($form['permission'][$key]),
+        'class' => array('permission'),
+      );
+    }
+    $rows[] = $row;
+  }
+
+  // Header: role name before 'Permission'.
+  $header[] = array('data' => drupal_render($form['role_names'][$rid]), 'class' => array('checkbox'));
+  $header[] = (t('Permission'));
+
+  $output = theme('system_compact_link');
+  $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'permissions')));
+  $output .= drupal_render_children($form);
+  return $output;
+}
