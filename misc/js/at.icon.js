@@ -5,7 +5,7 @@ var icon_info = function(service, icon_set, name) {
     + '<table style="width: 100%;">'
     + '  <tr><td><strong>Service:</strong></td> <td>'+ service +'</td></tr>'
     + '  <tr><td><strong>Set:</strong></td>     <td>'+ icon_set +'</td></tr>'
-    + "  <tr><td><strong>PHP:</strong></td>     <td><code>&lt;?php at_icon('"+ icon_set +"/"+ name +"', '"+ service +"') ?&gt;</code></td></tr>"
+    + "  <tr><td><strong>PHP:</strong></td>     <td><code>&lt;?php at_icon('"+ icon_set +"/"+ name +"', '"+ service +"'); ?&gt;</code></td></tr>"
     + "  <tr><td><strong>Twig:</strong></td>    <td><code>{{ '"+ icon_set +"/"+ name +"'|icon('"+ service +"') }}</code></td></tr>"
     + '</table>';
 };
