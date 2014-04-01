@@ -1,0 +1,16 @@
+.at-icon-list li {
+  list-style-type: none;
+  list-style-image: none;
+  display: inline;
+}
+
+.at-icon-list li i {
+  font-size: 1em;
+  cursor: pointer;
+  display: inline-block;
+  width: 190px;
+}
+
+.at-icon-list li i span {
+  padding-left: 7px;
+}

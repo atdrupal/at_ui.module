@@ -25,6 +25,39 @@ routes:
     controller: ['Drupal\at_ui\Controller\Reports\Entity_Templates', 'render']
     type: constant('MENU_LOCAL_TASK')
 
+  'at/icon':
+    title: Icons
+    access arguments: ['at-doc access']
+    controller: ['Drupal\at_ui\Controller\Icons', 'renderServices']
+
+  'at/icon/%':
+    title: Icons
+    access arguments: ['at-doc access']
+    controller: ['Drupal\at_ui\Controller\Icons', 'renderServiceSets']
+    breadcrumbs:
+      - ['Home', '<front>']
+      - ['Icons', 'at/icon']
+
+  'at/icon/%/%':
+    title: Icons
+    access arguments: ['at-doc access']
+    controller:
+      - 'Drupal\at_ui\Controller\Icons'
+      - 'renderServiceSet'
+      - { service_name: 2, set_name: 3 }
+    before:
+      - ['drupal_add_library', ['system', 'ui.dialog']]
+    attached:
+      css:
+        - '%datatables/media/css/jquery.dataTables.css'
+        - '@at_ui/misc/css/at.icon.css'
+      js:
+        - '%datatables/media/js/jquery.dataTables.min.js'
+        - '@at_ui/misc/js/at.icon.js'
+    breadcrumbs:
+      - ['Home', '<front>']
+      - ['Icons', 'at/icon']
+
   at/sql:
     title: Execute SQL Query
     # Permisison defined by devel.module
