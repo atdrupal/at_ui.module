@@ -6,20 +6,9 @@ class SourceCode {
   private $module;
   private $path;
 
-  public function __construct() {
-    if (!empty($_GET['module']) && module_exists($_GET['module'])) {
-      $this->module = $_GET['module'];
-    }
-
-    if (!empty($_GET['path'])) {
-      $this->path = $_GET['path'];
-    }
-  }
-
-  public function render() {
-    if (is_null($this->module)) {
-      return $this->renderIndex();
-    }
+  public function render($module) {
+    $this->module = $module;
+    $this->path = substr($_GET['q'], strlen($this->base_path . "/{$this->module}/"));
 
     $path = DRUPAL_ROOT . '/' . trim(drupal_get_path('module', $this->module) . '/' . $this->path, '/');
     if (is_dir($path)) {
@@ -27,24 +16,6 @@ class SourceCode {
     }
 
     return $this->renderModuleFile($path);
-  }
-
-  private function renderIndex() {
-    foreach (system_list('module_enabled') as $module => $module_info) {
-      $name = l($module, $this->base_path, array('query' => array('module' => $module, 'path' => '/')));
-      $path = './' . drupal_get_path('module', $module);
-      $rows[$module] = array($name, $path);
-    }
-
-    uksort($rows, function($a, $b) {
-      return strnatcmp($a, $b);
-    });
-
-    return array(
-      '#theme' => 'table',
-      '#header' => array('Module', 'Directory'),
-      '#rows' => $rows,
-    );
   }
 
   private function formatFileSize($bytes) {
@@ -68,28 +39,34 @@ class SourceCode {
 
     $items = scandir($dir);
     foreach ($items as $name) {
-      if ($name === '.') { continue; }
-      if ($name === '.DS_Store') { continue; }
-      if ($name === '._.DS_Store') { continue; }
-      if ($name === 'nbproject') { continue; }
+      switch ($name) {
+        case '':
+        case '.':
+        case '.DS_Store':
+        case '._.DS_Store':
+        case 'nbproject':
+          continue;
+        default:
+          $file = "{$dir}/{$name}";
+          $_name  = l(
+              $name,
+              $name !== '..'
+                ? "{$this->base_path}/{$this->module}/" . trim($this->path . '/' . $name, '/')
+                : "{$this->base_path}/{$this->module}/" . dirname($this->path)
+          );
 
-      $file   = "{$dir}/{$name}";
-      if ($name === '..') {
-        $_name  = l($name, "{$this->base_path}", array('query' => array('module' => $this->module, 'path' => dirname($this->path))));
+          $_stats = stat($file);
+
+          $rows[$file] = array(
+            is_dir($file) ? "<strong>{$_name}/</strong>" : $_name,
+            $_stats[4],
+            $_stats[5],
+            $this->formatFileSize($_stats[7]),
+            format_date($_stats[9], 'short'),
+          );
+
+          break;
       }
-      else {
-        $_name  = l($name, "{$this->base_path}", array('query' => array('module' => $this->module, 'path' => trim($this->path . '/' . $name, '/'))));
-      }
-
-      $_stats = stat($file);
-
-      $rows[$file] = array(
-        is_dir($file) ? "<strong>{$_name}/</strong>" : $_name,
-        $_stats[4],
-        $_stats[5],
-        $this->formatFileSize($_stats[7]),
-        format_date($_stats[9], 'short'),
-      );
     }
 
     uksort($rows, function($a, $b) {
