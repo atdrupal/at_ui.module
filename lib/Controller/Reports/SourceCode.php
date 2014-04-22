@@ -96,9 +96,11 @@ class SourceCode {
       return '<pre><code>'. file_get_contents("{$dir}/README.txt") .'</code></pre>';
     }
 
-    // @todo Use markdown to parse the content
     if (is_file("{$dir}/README.md")) {
-      return '<pre><code>'. file_get_contents("{$dir}/README.md") .'</code></pre>';
+      require_once at_library('parsedown') . '/Parsedown.php';
+      $output = file_get_contents("{$dir}/README.md");
+      $parser = new \Parsedown();
+      return '<div class="readme parsedown">' . $parser->text($output) . '</div>';
     }
   }
 

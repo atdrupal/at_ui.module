@@ -16,3 +16,9 @@ projects:
     download:
       type: file
       url: https://datatables.net/releases/DataTables-1.9.4.zip
+  parsedown:
+    type: library
+    download:
+        type: git
+        url: 'https://github.com/erusev/parsedown.git'
+        branch: 'master'
