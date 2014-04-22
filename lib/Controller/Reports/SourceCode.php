@@ -31,9 +31,9 @@ class SourceCode {
   private function renderModuleDir($dir) {
     $bc = drupal_get_breadcrumb();
     $bc[] = l('Source', $this->base_path);
-    $bc[] = l($this->module . '.module', $this->base_path, array('query' => array('module' => $this->module)));
-    if ($path = trim(dirname($this->path), '/')) {
-      $bc[] = l($path, $this->base_path, array('query' => array('module' => $this->module, 'path' => dirname($this->path))));
+    $bc[] = l("{$this->module}.module", "{$this->base_path}/{$this->module}");
+    if ($path = trim(dirname($this->path), '/.')) {
+      $bc[] = l($path, "{$this->base_path}/{$this->module}/" . dirname($this->path));
     }
     drupal_set_breadcrumb($bc);
 
