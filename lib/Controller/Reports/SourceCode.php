@@ -86,8 +86,20 @@ class SourceCode {
 
     return array('#theme' => 'table',
       '#header' => array('Name', 'UID', 'GID', 'Size', 'Modified'),
-      '#rows' => $rows
+      '#rows' => $rows,
+      '#suffix' => $this->renderModuleDirSuffix($dir)
     );
+  }
+
+  private function renderModuleDirSuffix($dir) {
+    if (is_file("{$dir}/README.txt")) {
+      return '<pre><code>'. file_get_contents("{$dir}/README.txt") .'</code></pre>';
+    }
+
+    // @todo Use markdown to parse the content
+    if (is_file("{$dir}/README.md")) {
+      return '<pre><code>'. file_get_contents("{$dir}/README.md") .'</code></pre>';
+    }
   }
 
   private function renderModuleFile($file) {
