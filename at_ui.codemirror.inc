@@ -105,14 +105,34 @@ function at_ui_display_file($form, $form_state, $file, $type = 'unknow') {
       break;
   }
 
+  $write = is_writable($file) && isset($_GET['e']);
+
   $form['code'] = array(
     '#type' => 'textarea',
+    '#file' => $file,
     '#default_value' => file_get_contents($file),
-    '#disabled' => TRUE,
+    '#disabled' => !$write,
     '#resizable' => FALSE,
   );
 
+  if ($write) {
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Submit'),
+    );
+  }
+
   return $form;
+}
+
+/**
+ * Submit handler for at_ui_display_file form.
+ */
+function at_ui_display_file_submit($form, $form_state) {
+  list($file, $content) = array($form['code']['#file'], $form_state['values']['code']);
+  $fp = fopen($file, 'w');
+  fwrite($fp, $content);
+  fclose($fp);
 }
 
 function at_ui_menu_alter__devel(&$menu) {
