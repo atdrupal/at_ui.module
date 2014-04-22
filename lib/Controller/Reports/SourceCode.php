@@ -35,11 +35,11 @@ class SourceCode {
       $path = './' . drupal_get_path('module', $module);
       $rows[$module] = array($name, $path);
     }
-    
+
     uksort($rows, function($a, $b) {
       return strnatcmp($a, $b);
     });
-    
+
     return array(
       '#theme' => 'table',
       '#header' => array('Module', 'Directory'),
@@ -168,6 +168,12 @@ class SourceCode {
         case 'yml':
         case 'yaml':
           $type = 'yaml';
+          break;
+
+        case 'json':
+          if ($json = json_decode(file_get_contents($file), TRUE)) {
+            return atdr($json);
+          }
           break;
       }
     }
