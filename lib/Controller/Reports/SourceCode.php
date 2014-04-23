@@ -104,9 +104,9 @@ class SourceCode {
           $hook = trim(preg_replace('/\s*function hook_([a-z0-9_]+).+$/i', '$1', $line));
 
           $rows[] = array(
-            "hook_{$hook}()",
+            l("hook_{$hook}()", "http://drupalcontrib.org/api/search/7/hook_{$hook}"),
             $this->parseFunctionDocBlock("hook_{$hook}"),
-            theme('item_list', array('items' => array_map(function($module) use ($hook) { return "{$module}_{$hook}"; }, module_implements($hook))))
+            theme('item_list', array('items' => array_map(function($module) use ($hook) { return l("{$module}_{$hook}", "http://drupalcontrib.org/api/search/7/{$module}_{$hook}"); }, module_implements($hook))))
           );
         }
       }
