@@ -100,10 +100,11 @@ class SourceCode {
       $file = "{$dir}/{$this->module}.api.php";
       include_once $file;
       foreach (file($file) as $line) {
-        if (strpos($line, "function hook_")) {
-          $hook = trim(preg_replace('/function hook_([a-z0-9_]+).+$/', '$1', $line));
+        if (strpos($line, "function hook_") === 0) {
+          $hook = trim(preg_replace('/function hook_([a-z0-9_]+).+$/i', '$1', $line));
+
           $rows[] = array(
-            $hook,
+            "{$hook}()",
             $this->parseFunctionDocBlock("hook_{$hook}"),
             theme('item_list', array('items' => array_map(function($module) use ($hook) { return "{$module}_{$hook}"; }, module_implements($hook))))
           );
@@ -111,16 +112,14 @@ class SourceCode {
       }
 
       if (!empty($rows)) {
-        $output = theme(
+        return theme(
           'table',
           array(
             'header' => array('Hook', 'Comment', 'Implementations'),
             'rows' => $rows,
             'caption' => '<h2>Module hooks</h2>',
           )
-        );
-
-        return $output;
+        ) . '<style>body table td { vertical-align: top; }</style>';
       }
     }
 
