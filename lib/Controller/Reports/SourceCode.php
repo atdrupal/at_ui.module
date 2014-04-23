@@ -100,8 +100,8 @@ class SourceCode {
       $file = "{$dir}/{$this->module}.api.php";
       include_once $file;
       foreach (file($file) as $line) {
-        if (strpos($line, "function hook_") === 0) {
-          $hook = trim(preg_replace('/function hook_([a-z0-9_]+).+$/i', '$1', $line));
+        if (strpos($line, "function hook_") !== FALSE) {
+          $hook = trim(preg_replace('/\s*function hook_([a-z0-9_]+).+$/i', '$1', $line));
 
           $rows[] = array(
             "hook_{$hook}()",
