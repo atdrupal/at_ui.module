@@ -149,8 +149,7 @@ class SourceCode {
     if (is_file("{$dir}/README.md")) {
       require_once at_library('parsedown') . '/Parsedown.php';
       $output = file_get_contents("{$dir}/README.md");
-      $parser = new \Parsedown();
-      return '<div class="readme parsedown">' . $parser->text($output) . '</div>';
+      return '<div class="readme parsedown">' . at_id(new \Parsedown())->text($output) . '</div>';
     }
   }
 
