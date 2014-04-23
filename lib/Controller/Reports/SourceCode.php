@@ -10,6 +10,13 @@ class SourceCode {
     $this->module = $module;
     $this->path = substr($_GET['q'], strlen($this->base_path . "/{$this->module}/"));
 
+    $title = drupal_get_title();
+    $title .= ' › ' . $this->module . '.module';
+    if ($this->path) {
+      $title .= ' › ' . $this->path;
+    }
+    drupal_set_title($title);
+
     $path = DRUPAL_ROOT . '/' . trim(drupal_get_path('module', $this->module) . '/' . $this->path, '/');
     if (is_dir($path)) {
       return $this->renderModuleDir($path);
@@ -136,6 +143,10 @@ class SourceCode {
       if ($line === '/**') { unset($lines[$i]); continue; }
       if ($line === '*/') { unset($lines[$i]); continue; }
       $line = ltrim($line, '* ');
+      if (strpos($line, '@') !== FALSE) {
+        $line = preg_replace('/(@[^\s]+)/', '**$1**', $line);
+        $line = str_replace('**@see**', "- **@see**", $line);
+      }
     }
 
     return at_id(new \Parsedown())->text(implode("\n", $lines));
