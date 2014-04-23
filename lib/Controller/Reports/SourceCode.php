@@ -104,7 +104,7 @@ class SourceCode {
           $hook = trim(preg_replace('/function hook_([a-z0-9_]+).+$/i', '$1', $line));
 
           $rows[] = array(
-            "{$hook}()",
+            "hook_{$hook}()",
             $this->parseFunctionDocBlock("hook_{$hook}"),
             theme('item_list', array('items' => array_map(function($module) use ($hook) { return "{$module}_{$hook}"; }, module_implements($hook))))
           );
