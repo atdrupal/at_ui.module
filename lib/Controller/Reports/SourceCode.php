@@ -92,6 +92,57 @@ class SourceCode {
   }
 
   private function renderModuleDirSuffix($dir) {
+    return $this->renderModuleDirReadMe($dir) . $this->renderModuleAPI($dir);
+  }
+
+  private function renderModuleAPI($dir) {
+    if (is_file("{$dir}/{$this->module}.api.php")) {
+      $file = "{$dir}/{$this->module}.api.php";
+      include_once $file;
+      foreach (file($file) as $line) {
+        if (strpos($line, "function hook_")) {
+          $hook = trim(preg_replace('/function hook_([a-z0-9_]+).+$/', '$1', $line));
+          $rows[] = array(
+            $hook,
+            $this->parseFunctionDocBlock("hook_{$hook}"),
+            theme('item_list', array('items' => array_map(function($module) use ($hook) { return "{$module}_{$hook}"; }, module_implements($hook))))
+          );
+        }
+      }
+
+      if (!empty($rows)) {
+        $output = theme(
+          'table',
+          array(
+            'header' => array('Hook', 'Comment', 'Implementations'),
+            'rows' => $rows,
+            'caption' => '<h2>Module hooks</h2>',
+          )
+        );
+
+        return $output;
+      }
+    }
+
+    return '';
+  }
+
+  private function parseFunctionDocBlock($fn) {
+    require_once at_library('parsedown') . '/Parsedown.php';
+
+    $comment = at_id(new \ReflectionFunction($fn))->getDocComment();
+    $lines = explode("\n", $comment);
+    foreach ($lines as $i => &$line) {
+      $line = trim($line);
+      if ($line === '/**') { unset($lines[$i]); continue; }
+      if ($line === '*/') { unset($lines[$i]); continue; }
+      $line = ltrim($line, '* ');
+    }
+
+    return at_id(new \Parsedown())->text(implode("\n", $lines));
+  }
+
+  private function renderModuleDirReadMe($dir) {
     if (is_file("{$dir}/README.txt")) {
       return '<pre><code>'. file_get_contents("{$dir}/README.txt") .'</code></pre>';
     }
