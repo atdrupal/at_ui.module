@@ -117,3 +117,35 @@ function at_ui_user_admin_permissions($variables) {
   $output .= drupal_render_children($form);
   return $output;
 }
+
+/**
+ * Implements hook_form_alter().
+ */
+function at_ui_form_alter(&$form, &$form_state, $form_id) {
+
+  switch ($form_id) {
+
+    //admin/config/development/performance
+    case "system_performance_settings":
+      $form['caching']['twig_cache'] = array(
+        '#type'     => 'checkbox',
+        '#title'    => t("Cache Twig"),
+        '#weight'   => -3,
+        '#default_value' => variable_get('twig_cache', TRUE),
+
+      );
+      $form['clear_cache']['clear']['#submit'][] = 'cache_twig'; 
+    break;
+
+  }
+  //return $form;
+}
+function cache_twig(&$form, &$form_state){
+    //Flush cache
+    foreach (file_scan_directory(conf_path() . '/private/temp/', '/\.php$/') as $file) {
+      unlink($file->uri);
+    }
+  drupal_set_message("You have just clear cache twig");
+  drupal_goto();
+
+}
