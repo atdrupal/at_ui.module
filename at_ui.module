@@ -18,6 +18,13 @@ function at_ui_init() {
  * Implements hook_menu()
  */
 function at_ui_menu_alter(&$menu) {
+  // Make route editable
+  foreach ($menu as &$item) {
+    if ($item['page callback'] === 'Drupal\at_base\Route\Controller::pageCallback') {
+      $item['page callback'] = 'Drupal\at_ui\Route\Controller::pageCallback';
+    }
+  }
+
   $menu['user/%user/devel']['page callback']
     = $menu['user/%user/devel/render']['page callback']
     = $menu['node/%node/devel']['page callback']
