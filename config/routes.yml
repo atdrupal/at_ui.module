@@ -13,10 +13,16 @@ routes:
     type: constant('MENU_DEFAULT_LOCAL_TASK')
 
   admin/reports/documentation/at_base/source:
+    title: Modules List
+    access arguments: ['at-doc access']
+    controller: ['Drupal\at_ui\Controller\Reports\SourceCode\ModuleIndex', 'render']
+    type: constant('MENU_LOCAL_TASK')
+    weight: 100
+
+  'admin/reports/documentation/at_base/source/%':
     title: Source
     access arguments: ['at-doc access']
-    controller: ['Drupal\at_ui\Controller\Reports\SourceCode', 'render']
-    type: constant('MENU_LOCAL_TASK')
+    controller: ['Drupal\at_ui\Controller\Reports\SourceCode', 'render', [5]]
     weight: 100
 
   admin/reports/documentation/at_base/entity-templates:

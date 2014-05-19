@@ -6,20 +6,16 @@ class SourceCode {
   private $module;
   private $path;
 
-  public function __construct() {
-    if (!empty($_GET['module']) && module_exists($_GET['module'])) {
-      $this->module = $_GET['module'];
-    }
+  public function render($module) {
+    $this->module = $module;
+    $this->path = substr($_GET['q'], strlen($this->base_path . "/{$this->module}/"));
 
-    if (!empty($_GET['path'])) {
-      $this->path = $_GET['path'];
+    $title = drupal_get_title();
+    $title .= ' › ' . $this->module . '.module';
+    if ($this->path) {
+      $title .= ' › ' . $this->path;
     }
-  }
-
-  public function render() {
-    if (is_null($this->module)) {
-      return $this->renderIndex();
-    }
+    drupal_set_title($title);
 
     $path = DRUPAL_ROOT . '/' . trim(drupal_get_path('module', $this->module) . '/' . $this->path, '/');
     if (is_dir($path)) {
@@ -29,24 +25,6 @@ class SourceCode {
     return $this->renderModuleFile($path);
   }
 
-  private function renderIndex() {
-    foreach (system_list('module_enabled') as $module => $module_info) {
-      $name = l($module, $this->base_path, array('query' => array('module' => $module, 'path' => '/')));
-      $path = './' . drupal_get_path('module', $module);
-      $rows[$module] = array($name, $path);
-    }
-    
-    uksort($rows, function($a, $b) {
-      return strnatcmp($a, $b);
-    });
-    
-    return array(
-      '#theme' => 'table',
-      '#header' => array('Module', 'Directory'),
-      '#rows' => $rows,
-    );
-  }
-
   private function formatFileSize($bytes) {
     $units = array('B', 'KB', 'MB', 'GB', 'TB');
 
@@ -54,45 +32,50 @@ class SourceCode {
     $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
     $pow = min($pow, count($units) - 1);
 
-    //return round($bytes, $precision) . ' ' . $units[$pow];
-    return round($bytes, 0) . ' ' . $units[$pow];
+    return round($bytes, $precision) . ' ' . $units[$pow];
   }
 
   private function renderModuleDir($dir) {
     $bc = drupal_get_breadcrumb();
     $bc[] = l('Source', $this->base_path);
-    $bc[] = l($this->module . '.module', $this->base_path, array('query' => array('module' => $this->module)));
-    if ($path = trim(dirname($this->path), '/')) {
-      $bc[] = l($path, $this->base_path, array('query' => array('module' => $this->module, 'path' => dirname($this->path))));
+    $bc[] = l("{$this->module}.module", "{$this->base_path}/{$this->module}");
+    if ($path = trim(dirname($this->path), '/.')) {
+      $bc[] = l($path, "{$this->base_path}/{$this->module}/" . dirname($this->path));
     }
     drupal_set_breadcrumb($bc);
 
     $items = scandir($dir);
     foreach ($items as $name) {
-      if ($name === '.') { continue; }
-      if ($name === '.DS_Store') { continue; }
-      if ($name === '._.DS_Store') { continue; }
-      if ($name === 'nbproject') { continue; }
+      switch ($name) {
+        case '':
+        case '.':
+        case '.DS_Store':
+        case '._.DS_Store':
+        case 'nbproject':
+          continue;
+        default:
+          $file = "{$dir}/{$name}";
+          $_name  = l(
+              $name,
+              $name !== '..'
+                ? "{$this->base_path}/{$this->module}/" . trim($this->path . '/' . $name, '/')
+                : "{$this->base_path}/{$this->module}/" . dirname($this->path)
+          );
 
-      $file   = "{$dir}/{$name}";
-      if ($name === '..') {
-        $_name  = l($name, "{$this->base_path}", array('query' => array('module' => $this->module, 'path' => dirname($this->path))));
+          $_stats = stat($file);
+
+          $rows[$file] = array(
+            is_dir($file) ? at_icon('folder-o').'  '."<strong>{$_name}/</strong>" : at_icon('file-text-o').'  '.$_name,
+            $_stats[4],
+            $_stats[5],
+            $this->formatFileSize($_stats[7]),
+            format_date($_stats[9], 'short'),
+          );
+
+          break;
       }
-      else {
-        $_name  = l($name, "{$this->base_path}", array('query' => array('module' => $this->module, 'path' => trim($this->path . '/' . $name, '/'))));
-      }
-
-      $_stats = stat($file);
-
-      $rows[$file] = array(
-        is_dir($file) ? at_icon('folder-o').'  '."<strong>{$_name}/</strong>" : at_icon('file-text-o').'  '.$_name,
-        $_stats[4],
-        $_stats[5],
-        $this->formatFileSize($_stats[7]),
-        format_date($_stats[9], 'short'),
-      );
     }
-    
+
     uksort($rows, function($a, $b) {
       // Parent directory first.
       if (is_dir($a) && '..' === substr($a, -2)) return -1;
@@ -108,20 +91,67 @@ class SourceCode {
       return strcmp(basename($a), basename($b)) < 0 ? -1 : 1;
     });
 
-    $output = theme('table', array(
-        'header' => array('Name', 'UID', 'GID', 'Size', 'Modified'), 
-        'rows' => $rows
-    ));
-    if ($this->renderModuleDirReadMe($dir)) {
-      $output .= theme('table', array(
-        'header' => array('README'),
-        'rows' => array(0 => array($this->renderModuleDirReadMe($dir))),
-      )); 
-    }
-    
-    return $output;
+    return array('#theme' => 'table',
+      '#header' => array('Name', 'UID', 'GID', 'Size', 'Modified'),
+      '#rows' => $rows,
+      '#suffix' => $this->renderModuleDirSuffix($dir)
+    );
   }
-  
+
+  private function renderModuleDirSuffix($dir) {
+    return $this->renderModuleDirReadMe($dir) . $this->renderModuleAPI($dir);
+  }
+
+  private function renderModuleAPI($dir) {
+    if (is_file("{$dir}/{$this->module}.api.php")) {
+      $file = "{$dir}/{$this->module}.api.php";
+      include_once $file;
+      foreach (file($file) as $line) {
+        if (strpos($line, "function hook_") !== FALSE) {
+          $hook = trim(preg_replace('/\s*function hook_([a-z0-9_]+).+$/i', '$1', $line));
+
+          $rows[] = array(
+            l("hook_{$hook}()", "http://drupalcontrib.org/api/search/7/hook_{$hook}"),
+            $this->parseFunctionDocBlock("hook_{$hook}"),
+            theme('item_list', array('items' => array_map(function($module) use ($hook) { return l("{$module}_{$hook}", "http://drupalcontrib.org/api/search/7/{$module}_{$hook}"); }, module_implements($hook))))
+          );
+        }
+      }
+
+      if (!empty($rows)) {
+        return theme(
+          'table',
+          array(
+            'header' => array('Hook', 'Comment', 'Implementations'),
+            'rows' => $rows,
+            'caption' => '<h2>Module hooks</h2>',
+          )
+        ) . '<style>body table td { vertical-align: top; }</style>';
+      }
+    }
+
+    return '';
+  }
+
+  private function parseFunctionDocBlock($fn) {
+    require_once at_library('parsedown') . '/Parsedown.php';
+
+    $comment = at_id(new \ReflectionFunction($fn))->getDocComment();
+    $lines = explode("\n", $comment);
+    foreach ($lines as $i => &$line) {
+      $line = trim($line);
+      if ($line === '/**') { unset($lines[$i]); continue; }
+      if ($line === '*/') { unset($lines[$i]); continue; }
+      $line = ltrim($line, '* ');
+      if (strpos($line, '@') !== FALSE) {
+        $line = preg_replace('/(@[^\s]+)/', '**$1**', $line);
+        $line = str_replace('**@see**', "- **@see**", $line);
+      }
+    }
+
+    return at_id(new \Parsedown())->text(implode("\n", $lines));
+  }
+
   private function renderModuleDirReadMe($dir) {
     if (is_file("{$dir}/README.txt")) {
       return '<pre><code>'. file_get_contents("{$dir}/README.txt") .'</code></pre>';
@@ -137,11 +167,9 @@ class SourceCode {
   private function renderModuleFile($file) {
     $bc = drupal_get_breadcrumb();
     $bc[] = l('Source', $this->base_path);
-    $bc[] = l($this->module . '.module', $this->base_path, array('query' => array('module' => $this->module)));
-    if ($path = trim(dirname($this->path), '/')) {
-      $bc[] = l($path, $this->base_path, array('query' => array(
-        'module' => $this->module, 'path' => dirname($this->path)
-      )));
+    $bc[] = l($this->module . '.module', "{$this->base_path}/{$this->module}");
+    if ($path = trim(dirname($this->path), '/.')) {
+      $bc[] = l($path, "{$this->base_path}/{$this->module}" . dirname($this->path));
     }
     drupal_set_breadcrumb($bc);
 
@@ -190,9 +218,15 @@ class SourceCode {
         case 'yaml':
           $type = 'yaml';
           break;
+
+        case 'json':
+          if ($json = json_decode(file_get_contents($file), TRUE)) {
+            return atdr($json);
+          }
+          break;
       }
     }
-    
+
     return drupal_get_form('at_ui_display_file', $file, $type);
   }
 }

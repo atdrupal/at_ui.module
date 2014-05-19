@@ -11,8 +11,9 @@ projects:
       type: git
       url: 'https://github.com/raveren/kint.git'
       branch: v0.9
-  datatables:
+  parsedown:
     type: library
     download:
-      type: file
-      url: https://datatables.net/releases/DataTables-1.9.4.zip
+        type: git
+        url: 'https://github.com/erusev/parsedown.git'
+        branch: 'master'
