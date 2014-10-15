@@ -21,6 +21,7 @@ function at_ui_admin_paths() {
   return array('at/*' => TRUE);
 }
 
+/**
  * Implements hook_menu()
  */
 function at_ui_menu_alter(&$menu) {
@@ -99,7 +100,6 @@ function at_ui_user_admin_permissions($variables) {
     }
     else {
       // Permission row.
-
       // Checkbox.
       $form['checkboxes'][$rid][$key]['#title'] = $roles[$rid] . ': ' . $form['permission'][$key]['#markup'];
       $form['checkboxes'][$rid][$key]['#title_display'] = 'invisible';
@@ -107,7 +107,7 @@ function at_ui_user_admin_permissions($variables) {
 
       // Permission markup.
       $row[] = array(
-        'data' => drupal_render($form['permission'][$key]),
+        'data'  => drupal_render($form['permission'][$key]),
         'class' => array('permission'),
       );
     }
@@ -128,28 +128,47 @@ function at_ui_user_admin_permissions($variables) {
  * Implements hook_form_alter().
  */
 function at_ui_form_alter(&$form, &$form_state, $form_id) {
-
   switch ($form_id) {
-
-    //admin/config/development/performance
-    case "system_performance_settings":
+    case "system_performance_settings": # admin/config/development/performance
       $form['caching']['twig_cache'] = array(
-        '#type'     => 'checkbox',
-        '#title'    => t("Cache Twig"),
-        '#weight'   => -3,
+        '#type'          => 'checkbox',
+        '#title'         => t("Cache Twig"),
+        '#weight'        => -3,
         '#default_value' => variable_get('twig_cache', TRUE),
-
       );
-      $form['clear_cache']['clear']['#submit'][] = 'cache_twig'; 
-    break;
+      $form['clear_cache']['clear']['#submit'][] = 'cache_twig';
+      break;
   }
-  //return $form;
 }
-function cache_twig(&$form, &$form_state){
-    //Flush cache
-    foreach (file_scan_directory(conf_path() . '/private/temp/', '/\.php$/') as $file) {
-      unlink($file->uri);
+
+/**
+ * Display tool-links on dev-pages.
+ *
+ * @return string
+ */
+function at_ui_tool_links() {
+  drupal_add_css(drupal_get_path('module', 'at_ui') . '/misc/css/at-ui.links.css');
+
+  $items = array(
+    'at_ui' => array('data'     => 'AT UI module', 'children' => array(
+        l('SQL Playround', 'at/sql'),
+        l('Twig template playround', 'at/twig'),
+        l('Explore icons', 'at/icon'),
+        l('Entity templates', 'admin/reports/documentation/at_base/entity-templates'),
+        l('Routes', 'admin/reports/documentation/at_base'),
+        l('Source code', 'admin/reports/documentation/at_base/source')
+      )),
+    'devel' => array('data' => 'Devel module')
+  );
+
+  foreach (devel_menu() as $path => $info) {
+    if (0 === strpos($path, 'devel/')) {
+      $items['devel']['children'][] = l($info['title'], $path);
     }
-  drupal_set_message("You have just clear cache twig");
-  drupal_goto();
+  }
+
+  return theme('item_list', array(
+    'items'      => $items,
+    'attributes' => array('class' => array('at-ui-links'))
+  ));
 }

@@ -34,7 +34,7 @@ class SourceCode {
     $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
     $pow = min($pow, count($units) - 1);
 
-    return round($bytes, $precision) . ' ' . $units[$pow];
+    return round($bytes, 2) . ' ' . $units[$pow];
   }
 
   private function renderModuleDir($dir) {
@@ -103,7 +103,7 @@ class SourceCode {
   }
 
   private function renderModuleDirSuffix($dir) {
-    return $this->renderModuleDirReadMe($dir) . $this->renderModuleAPI($dir);
+    return $this->renderModuleDirReadMe($dir) . $this->renderModuleAPI($dir) . at_ui_tool_links();
   }
 
   private function renderModuleAPI($dir) {

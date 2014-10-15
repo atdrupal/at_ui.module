@@ -39,7 +39,8 @@ class EntityTemplates {
         array('data' => 'Block'),
       ),
       '#rows'   => $rows,
-      '#empty'  => 'Empty');
+      '#empty'  => 'Empty',
+      '#suffix' => at_ui_tool_links());
   }
 
 }

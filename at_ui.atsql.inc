@@ -1,20 +1,18 @@
 <?php
 
 function at_ui_sql_form($form, &$form_state) {
-  $form = array('#redirect' => FALSE);
+  $form = array('#redirect' => FALSE, '#suffix' => at_ui_tool_links(),);
 
   $form['string'] = array(
-    '#title' => 'SQL Query',
-    '#type' => 'textarea',
-    '#resizable' => FALSE,
-    '#default_value' => (isset($_SESSION['sql_execute_code'])
-                ? $_SESSION['sql_execute_code']
-                : "SELECT u.uid, u.name, u.mail, u.access \nFROM {users} u \nWHERE u.uid \nORDER BY u.access DESC \nLIMIT 10"),
-    '#description' => at_ui_codemirror_submit_shortcut_hint(),
-    '#ajax' => array(
-      'event' => 'change',
+    '#title'         => 'SQL Query',
+    '#type'          => 'textarea',
+    '#resizable'     => FALSE,
+    '#default_value' => (isset($_SESSION['sql_execute_code']) ? $_SESSION['sql_execute_code'] : "SELECT u.uid, u.name, u.mail, u.access \nFROM {users} u \nWHERE u.uid \nORDER BY u.access DESC \nLIMIT 10"),
+    '#description'   => at_ui_codemirror_submit_shortcut_hint(),
+    '#ajax'          => array(
+      'event'    => 'change',
       'callback' => 'at_ui_sql_form_ajax_callback',
-      'wrapper' => 'at-sql-results',
+      'wrapper'  => 'at-sql-results',
     ),
   );
 
@@ -41,11 +39,11 @@ function at_ui_sql_form_ajax_callback($form, &$form_state) {
   }
 
   $form['result']['#markup'] = array(
-    '#theme' => 'table',
-    '#header' => $header,
-    '#rows' => $rows,
+    '#theme'   => 'table',
+    '#header'  => $header,
+    '#rows'    => $rows,
     '#caption' => t('Results'),
-    '#sticky' => FALSE,
+    '#sticky'  => FALSE,
   );
   $form['result']['#markup'] = drupal_render($form['result']['#markup']);
 

@@ -1,7 +1,11 @@
 <?php
 
 function at_ui_twig_form($form, $form_state) {
-  $form = array('#cache' => FALSE, '#redirect' => FALSE);
+  $form = array(
+    '#cache'    => FALSE,
+    '#redirect' => FALSE,
+    '#suffix'   => at_ui_tool_links(),
+  );
 
   $form['code'] = array(
     '#type'          => 'textarea',
@@ -28,7 +32,6 @@ function at_ui_twig_form($form, $form_state) {
 
 function at_ui_twig_form_submit() {
   foreach (file_scan_directory(drupal_realpath(variable_get('file_temporary_path')) . '/', '/\.php$/') as $file) {
-    dsm($file->uri);
     unlink($file->uri);
   }
 }

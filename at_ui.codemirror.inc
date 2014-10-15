@@ -122,6 +122,8 @@ function at_ui_display_file($form, $form_state, $file, $type = 'unknow') {
     );
   }
 
+  $form['#suffix'] = at_ui_tool_links();
+
   return $form;
 }
 

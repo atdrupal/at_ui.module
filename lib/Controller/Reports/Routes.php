@@ -40,7 +40,8 @@ class Routes {
         'Blocks',
         'Breadcrumb',
       ),
-      '#rows'   => $rows
+      '#rows'   => $rows,
+      '#suffix' => at_ui_tool_links()
     );
   }
 

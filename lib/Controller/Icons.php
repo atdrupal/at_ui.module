@@ -1,7 +1,9 @@
 <?php
+
 namespace Drupal\at_ui\Controller;
 
 class Icons {
+
   public function renderServices() {
     $rows = array();
 
@@ -11,7 +13,11 @@ class Icons {
       }
     }
 
-    return array('#theme' => 'table', '#header' => array('Service', 'Set'), '#rows' => $rows);
+    return array(
+      '#theme'  => 'table',
+      '#header' => array('Service', 'Set'),
+      '#rows'   => $rows,
+      '#suffix' => at_ui_tool_links());
   }
 
   /**
@@ -22,27 +28,26 @@ class Icons {
    * @return array
    */
   public function renderServiceSet($name, $set_name) {
-    $service  = at_container($name);
+    $service = at_container($name);
     $items = array();
 
     drupal_set_title("{$set_name} — " . $service->getName());
 
     foreach ($service->getIconList($set_name) as $icon_name) {
       $items[] = str_replace(
-        '<i',
-        '<i data-name="'. $icon_name .'"',
-        $service->get("{$set_name}/{$icon_name}")->render()
+        '<i', '<i data-name="' . $icon_name . '"', $service->get("{$set_name}/{$icon_name}")->render()
       );
     }
 
     return array(
-      '#theme' => 'item_list',
-      '#items' => $items,
+      '#theme'      => 'item_list',
+      '#items'      => $items,
       '#attributes' => array(
-        'class' => array('at-icon-list'),
+        'class'        => array('at-icon-list'),
         'data-service' => $name,
-        'data-set' => $set_name,
+        'data-set'     => $set_name,
       ),
     );
   }
+
 }
