@@ -1,19 +1,17 @@
 <?php
 
 function at_ui_twig_form($form, $form_state) {
-  $form = array('#redirect' => FALSE);
+  $form = array('#cache' => FALSE, '#redirect' => FALSE);
 
   $form['code'] = array(
-    '#type' => 'textarea',
-    '#resizable' => FALSE,
-    '#default_value' => (isset($_SESSION['twig_execute_code'])
-                          ? $_SESSION['twig_execute_code']
-                          : "{{ user.access|fn__format_date('long') }}"),
-    '#description' => at_ui_codemirror_submit_shortcut_hint(),
-    '#ajax' => array(
-      'event' => 'change',
+    '#type'          => 'textarea',
+    '#resizable'     => FALSE,
+    '#default_value' => (isset($_SESSION['twig_execute_code']) ? $_SESSION['twig_execute_code'] : "{{ user.access|fn__format_date('long') }}"),
+    '#description'   => at_ui_codemirror_submit_shortcut_hint(),
+    '#ajax'          => array(
+      'event'    => 'change',
       'callback' => 'at_ui_twig_form_ajax_callback',
-      'wrapper' => 'at-ui-results',
+      'wrapper'  => 'at-ui-results',
     ),
   );
 
@@ -23,9 +21,16 @@ function at_ui_twig_form($form, $form_state) {
     '#markup' => '',
   );
 
-  $form['submit'] = array('#type' => 'submit', '#value' => 'Execute');
+  $form['submit'] = array('#type' => 'submit', '#value' => 'Flush compiled Twig templates');
 
   return $form;
+}
+
+function at_ui_twig_form_submit() {
+  foreach (file_scan_directory(drupal_realpath(variable_get('file_temporary_path')) . '/', '/\.php$/') as $file) {
+    dsm($file->uri);
+    unlink($file->uri);
+  }
 }
 
 /**
@@ -59,7 +64,7 @@ function at_ui_twig_views_form($form = array(), $form_state) {
 
   $names = array('' => '-- Select a view --');
   foreach (views_get_all_views() as $name => $def) {
-    $names[$def->base_table][$name] = $def->human_name . ' ('. $name .')';
+    $names[$def->base_table][$name] = $def->human_name . ' (' . $name . ')';
   }
 
   foreach ($names as $k => &$_names) {
@@ -67,9 +72,9 @@ function at_ui_twig_views_form($form = array(), $form_state) {
   }
 
   $form['name'] = array(
-    '#type' => 'select',
-    '#title' => 'View name',
-    '#options' => $names,
+    '#type'          => 'select',
+    '#title'         => 'View name',
+    '#options'       => $names,
     '#default_value' => $view_name,
   );
 
@@ -84,12 +89,12 @@ function at_ui_twig_views_form($form = array(), $form_state) {
       }
 
       $form['display_id'] = array(
-        '#prefix' => '<div id="at-ui-displays">',
-        '#suffix' => '</div>',
-        '#type' => 'select',
-        '#title' => 'Display ID',
+        '#prefix'        => '<div id="at-ui-displays">',
+        '#suffix'        => '</div>',
+        '#type'          => 'select',
+        '#title'         => 'Display ID',
         '#default_value' => $display_id,
-        '#options' => $display_ids,
+        '#options'       => $display_ids,
       );
 
       $fields = array(
@@ -102,11 +107,11 @@ function at_ui_twig_views_form($form = array(), $form_state) {
         foreach ($view->result[0] as $k => $v) {
           $fields['row.item'][] = $k;
         }
-        $fields_markup = '<pre><code>' .print_r($fields, TRUE) . '</code></pre>';
+        $fields_markup = '<pre><code>' . print_r($fields, TRUE) . '</code></pre>';
 
         $form['fields'] = array(
-          '#type' => 'item',
-          '#title' => 'Available variables for view (Twig) template',
+          '#type'   => 'item',
+          '#title'  => 'Available variables for view (Twig) template',
           '#markup' => $fields_markup,
         );
       }
@@ -114,11 +119,11 @@ function at_ui_twig_views_form($form = array(), $form_state) {
   }
 
   $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => 'Update',
-    '#submit' => array(function($form, &$form_state){
-      drupal_goto("at/twig/views/{$form_state['values']['name']}/{$form_state['values']['display_id']}");
-    })
+    '#type'   => 'submit',
+    '#value'  => 'Update',
+    '#submit' => array(function($form, &$form_state) {
+        drupal_goto("at/twig/views/{$form_state['values']['name']}/{$form_state['values']['display_id']}");
+      })
   );
 
   return $form;
