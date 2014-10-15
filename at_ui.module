@@ -15,6 +15,12 @@ function at_ui_init() {
 }
 
 /**
+ * Implements hook_admin_paths()
+ */
+function at_ui_admin_paths() {
+  return array('at/*' => TRUE);
+}
+
  * Implements hook_menu()
  */
 function at_ui_menu_alter(&$menu) {
