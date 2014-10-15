@@ -1,7 +1,9 @@
 <?php
+
 namespace Drupal\at_ui\Controller\Reports;
 
 class Entity_Templates {
+
   public function render() {
     $rows = array();
 
@@ -27,7 +29,7 @@ class Entity_Templates {
       }
     }
 
-    return array('#theme' => 'table',
+    return array('#theme'  => 'table',
       '#header' => array(
         array('data' => 'Entity', 'width' => '100px'),
         array('data' => 'Bundle', 'width' => '100px'),
@@ -36,7 +38,8 @@ class Entity_Templates {
         array('data' => 'Attached'),
         array('data' => 'Block'),
       ),
-      '#rows' => $rows,
-      '#empty' => 'Empty');
+      '#rows'   => $rows,
+      '#empty'  => 'Empty');
   }
+
 }

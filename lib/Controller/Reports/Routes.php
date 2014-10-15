@@ -1,7 +1,9 @@
 <?php
+
 namespace Drupal\at_ui\Controller\Reports;
 
 class Routes {
+
   public function render() {
     $rows = array();
     foreach (at_modules('at_base', 'routes') as $module) {
@@ -25,11 +27,11 @@ class Routes {
         }
         $breadcrumbs = array_merge($breadcrumbs, $this->findExternalBreadcrumbs($path));
 
-        $rows[] = array($module, $path, atdr($route), atdr($attached), atdr($blocks), atdr($breadcrumbs));
+        $rows[] = array($module, $path, go1dr($route), atdr($attached), atdr($blocks), atdr($breadcrumbs));
       }
     }
 
-    return array('#theme' => 'table',
+    return array('#theme'  => 'table',
       '#header' => array(
         array('data' => 'Module', 'width' => '100px'),
         array('data' => 'Path', 'width' => '100px'),
@@ -38,18 +40,18 @@ class Routes {
         'Blocks',
         'Breadcrumb',
       ),
-      '#rows' => $rows
+      '#rows'   => $rows
     );
   }
 
   public function findExternalBreadcrumbs($path) {
     foreach (at_modules('at_base', 'breadcrumb') as $module) {
       $config = at_config($module, 'breadcrumb')->get('breadcrumb');
-
       if (isset($config['paths'][$path])) {
         return $config['paths'][$path];
       }
     }
     return array();
   }
+
 }

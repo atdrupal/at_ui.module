@@ -10,3 +10,4 @@ Development tools
 - /admin/reports/documentation/at_base/entity-templates — Browse enabled entity templates
 - /admin/reports/documentation/at_base/routes — Browse defined routes.
 - /admin/reports/documentation/at_base/source/ — Browse source code of enabled modules.
+- /admin/config/development/performance - Clear twig caches

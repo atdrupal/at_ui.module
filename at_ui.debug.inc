@@ -1,7 +1,4 @@
 <?php
-/**
- * @file
- */
 
 function atsm() {
   if (user_access('access devel information')) {
