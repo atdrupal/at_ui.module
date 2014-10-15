@@ -125,23 +125,6 @@ function at_ui_user_admin_permissions($variables) {
 }
 
 /**
- * Implements hook_form_alter().
- */
-function at_ui_form_alter(&$form, &$form_state, $form_id) {
-  switch ($form_id) {
-    case "system_performance_settings": # admin/config/development/performance
-      $form['caching']['twig_cache'] = array(
-        '#type'          => 'checkbox',
-        '#title'         => t("Cache Twig"),
-        '#weight'        => -3,
-        '#default_value' => variable_get('twig_cache', TRUE),
-      );
-      $form['clear_cache']['clear']['#submit'][] = 'cache_twig';
-      break;
-  }
-}
-
-/**
  * Display tool-links on dev-pages.
  *
  * @return string
