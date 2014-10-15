@@ -2,7 +2,7 @@
 
 namespace Drupal\at_ui\Controller\Reports;
 
-class Entity_Templates {
+class EntityTemplates {
 
   public function render() {
     $rows = array();

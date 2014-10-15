@@ -1,7 +1,9 @@
 <?php
+
 namespace Drupal\at_ui\Controller\Reports;
 
 class SourceCode {
+
   private $base_path = 'admin/reports/documentation/at_base/source';
   private $module;
   private $path;
@@ -55,15 +57,8 @@ class SourceCode {
           continue;
         default:
           $file = "{$dir}/{$name}";
-          $_name  = l(
-              $name,
-              $name !== '..'
-                ? "{$this->base_path}/{$this->module}/" . trim($this->path . '/' . $name, '/')
-                : "{$this->base_path}/{$this->module}/" . dirname($this->path)
-          );
-
+          $_name = l($name, $name !== '..' ? "{$this->base_path}/{$this->module}/" . trim($this->path . '/' . $name, '/') : "{$this->base_path}/{$this->module}/" . dirname($this->path));
           $_stats = stat($file);
-
           $rows[$file] = array(
             is_dir($file) ? "<strong>{$_name}/</strong>" : $_name,
             $_stats[4],
@@ -71,29 +66,38 @@ class SourceCode {
             $this->formatFileSize($_stats[7]),
             format_date($_stats[9], 'short'),
           );
-
           break;
       }
     }
 
     uksort($rows, function($a, $b) {
       // Parent directory first.
-      if (is_dir($a) && '..' === substr($a, -2)) return -1;
-      if (is_dir($b) && '..' === substr($b, -2)) return  1;
+      if (is_dir($a) && '..' === substr($a, -2)) {
+        return -1;
+      }
+
+      if (is_dir($b) && '..' === substr($b, -2)) {
+        return 1;
+      }
 
       if (is_dir($a) xor is_dir($b)) {
         // And then directory if the type is difference.
-        if (is_dir($a)) return -1;
-        if (is_dir($b)) return  1;
+        if (is_dir($a)) {
+          return -1;
+        }
+
+        if (is_dir($b)) {
+          return 1;
+        }
       }
 
       // Compare by basename, if the type is the same.
       return strcmp(basename($a), basename($b)) < 0 ? -1 : 1;
     });
 
-    return array('#theme' => 'table',
+    return array('#theme'  => 'table',
       '#header' => array('Name', 'UID', 'GID', 'Size', 'Modified'),
-      '#rows' => $rows,
+      '#rows'   => $rows,
       '#suffix' => $this->renderModuleDirSuffix($dir)
     );
   }
@@ -113,20 +117,21 @@ class SourceCode {
           $rows[] = array(
             l("hook_{$hook}()", "http://drupalcontrib.org/api/search/7/hook_{$hook}"),
             $this->parseFunctionDocBlock("hook_{$hook}"),
-            theme('item_list', array('items' => array_map(function($module) use ($hook) { return l("{$module}_{$hook}", "http://drupalcontrib.org/api/search/7/{$module}_{$hook}"); }, module_implements($hook))))
+            theme('item_list', array('items' => array_map(function($module) use ($hook) {
+                  return l("{$module}_{$hook}", "http://drupalcontrib.org/api/search/7/{$module}_{$hook}");
+                }, module_implements($hook))))
           );
         }
       }
 
       if (!empty($rows)) {
         return theme(
-          'table',
-          array(
-            'header' => array('Hook', 'Comment', 'Implementations'),
-            'rows' => $rows,
+            'table', array(
+            'header'  => array('Hook', 'Comment', 'Implementations'),
+            'rows'    => $rows,
             'caption' => '<h2>Module hooks</h2>',
-          )
-        ) . '<style>body table td { vertical-align: top; }</style>';
+            )
+          ) . '<style>body table td { vertical-align: top; }</style>';
       }
     }
 
@@ -140,8 +145,14 @@ class SourceCode {
     $lines = explode("\n", $comment);
     foreach ($lines as $i => &$line) {
       $line = trim($line);
-      if ($line === '/**') { unset($lines[$i]); continue; }
-      if ($line === '*/') { unset($lines[$i]); continue; }
+      if ($line === '/**') {
+        unset($lines[$i]);
+        continue;
+      }
+      if ($line === '*/') {
+        unset($lines[$i]);
+        continue;
+      }
       $line = ltrim($line, '* ');
       if (strpos($line, '@') !== FALSE) {
         $line = preg_replace('/(@[^\s]+)/', '**$1**', $line);
@@ -154,7 +165,7 @@ class SourceCode {
 
   private function renderModuleDirReadMe($dir) {
     if (is_file("{$dir}/README.txt")) {
-      return '<pre><code>'. file_get_contents("{$dir}/README.txt") .'</code></pre>';
+      return '<pre><code>' . file_get_contents("{$dir}/README.txt") . '</code></pre>';
     }
 
     if (is_file("{$dir}/README.md")) {
@@ -178,13 +189,14 @@ class SourceCode {
 
     switch ($mime_type) {
       case 'text/x-php':
-        $type = 'php'; break;
+        $type = 'php';
+        break;
 
       case 'image/png':
       case 'image/jpg':
       case 'image/jpeg':
       case 'image/gif':
-        return '<img src="'. $GLOBALS['base_path'] . drupal_get_path('module', $this->module) .'/'. trim($this->path, '/') .'" />';
+        return '<img src="' . $GLOBALS['base_path'] . drupal_get_path('module', $this->module) . '/' . trim($this->path, '/') . '" />';
 
       default:
         $type = 'unknown';
@@ -229,4 +241,5 @@ class SourceCode {
 
     return drupal_get_form('at_ui_display_file', $file, $type);
   }
+
 }
