@@ -103,6 +103,10 @@ function at_ui_display_file($form, $form_state, $file, $type = 'unknow') {
       at_ui_include_codemirror(array('mode/clike/clike.js', 'mode/php/php.js'));
       drupal_add_js(drupal_get_path('module', 'at_ui') . '/misc/js/devel.php.js');
       break;
+      
+    case 'txt':
+      at_ui_include_codemirror(array('mode/properties/properties.js'));
+      break;
   }
 
   $write = is_writable($file) && isset($_GET['e']);

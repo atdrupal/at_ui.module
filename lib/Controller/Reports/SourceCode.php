@@ -60,7 +60,7 @@ class SourceCode {
           $_name = l($name, $name !== '..' ? "{$this->base_path}/{$this->module}/" . trim($this->path . '/' . $name, '/') : "{$this->base_path}/{$this->module}/" . dirname($this->path));
           $_stats = stat($file);
           $rows[$file] = array(
-            is_dir($file) ? "<strong>{$_name}/</strong>" : $_name,
+            is_dir($file) ? at_icon('folder-o').'  '."<strong>{$_name}/</strong>" : at_icon('file-text-o').'  '.$_name,
             $_stats[4],
             $_stats[5],
             $this->formatFileSize($_stats[7]),
