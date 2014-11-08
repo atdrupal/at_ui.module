@@ -1,4 +1,4 @@
-AT UI — Development tools
+@UI — Development tools
 =====
 
 > ## Only this module on your development enviroment. No production site please!
