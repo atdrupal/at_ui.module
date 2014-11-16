@@ -68,7 +68,7 @@ routes:
     title: Execute SQL Query
     # Permisison defined by devel.module
     access arguments: ['execute php code']
-    file: at_ui.atsql.inc
+    file: at_ui.atsql.php
     page callback: drupal_get_form
     page arguments: ['at_ui_sql_form']
     before:
@@ -79,7 +79,7 @@ routes:
   at/twig:
     title: Twig Form
     access arguments: ['execute php code']
-    file: at_ui.codemirror.attwig.inc
+    file: at_ui.codemirror.attwig.php
     page callback: drupal_get_form
     page arguments: ['at_ui_twig_form']
     form: 'Drupal\at_ui\Controller\TwigFormController'
@@ -92,6 +92,6 @@ routes:
   'at/twig/views':
     title: drupalView
     access arguments: ['execute php code']
-    file: at_ui.codemirror.attwig.inc
+    file: at_ui.codemirror.attwig.php
     page callback: drupal_get_form
     page arguments: ['at_ui_twig_views_form']
