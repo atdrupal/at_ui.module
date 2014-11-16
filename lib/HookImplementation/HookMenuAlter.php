@@ -22,20 +22,9 @@ class HookMenuAlter
         }
 
         foreach ($keys as $key) {
-            $position = 0 === strpos(arg(1, $key), '%') ? 1 : 2;
-
-            // Aler */load tab
-            $menu[$key]['page callback'] = 'atdr';
-            $menu[$key]['page arguments'] = array($position);
-
-            // Aler */render tab
-            $menu[$key . '/render']['page callback'] = 'Drupal\at_ui\HookImplementation\HookMenuAlter::renderObject';
+            $menu[$key]['page callback'] = $menu[$key . '/render']['page callback'] = 'atdr';
+            $menu[$key]['page arguments'] = $menu[$key . '/render']['page arguments'] = [0 === strpos(arg(1, $key), '%') ? 1 : 2];
         }
-    }
-
-    public static function renderObject($entity_type, $entity, $name = NULL)
-    {
-        return atdr($entity);
     }
 
 }
