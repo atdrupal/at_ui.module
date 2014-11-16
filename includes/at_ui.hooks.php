@@ -42,3 +42,11 @@ function at_ui_theme_registry_alter(&$theme_registry)
     $theme_registry['user_admin_permissions']['function'] = 'at_ui_user_admin_permissions';
     unset($theme_registry['user_admin_permissions']['includes']);
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function at_ui_form_simpletest_test_form_alter(&$form, $form_state)
+{
+    drupal_add_js(drupal_get_path('module', 'at_ui') . '/misc/js/at.simpletest.landing.js');
+}
