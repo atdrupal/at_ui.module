@@ -78,50 +78,51 @@ function at_ui_theme_registry_alter(&$theme_registry) {
  *
  * @ingroup themeable
  */
-function at_ui_user_admin_permissions($variables) {
-  $form = $variables['form'];
+function at_ui_user_admin_permissions($variables)
+{
+    $form = $variables['form'];
 
-  $rids = element_children($form['checkboxes']);
-  if (count($rids) != 1) {
-    // Multiple roles.
-    module_load_include('inc', 'user', 'user.admin');
-    return theme_user_admin_permissions($variables);
-  }
-
-  // Single role.
-  $rid = reset($rids);
-
-  $roles = user_roles();
-  foreach (element_children($form['permission']) as $key) {
-    $row = array();
-    // Module name
-    if (is_numeric($key)) {
-      $row[] = array('data' => drupal_render($form['permission'][$key]), 'class' => array('module'), 'id' => 'module-' . $form['permission'][$key]['#id'], 'colspan' => count($form['role_names']['#value']) + 1);
+    $rids = element_children($form['checkboxes']);
+    if (count($rids) != 1) {
+        // Multiple roles.
+        module_load_include('inc', 'user', 'user.admin');
+        return theme_user_admin_permissions($variables);
     }
-    else {
-      // Permission row.
-      // Checkbox.
-      $form['checkboxes'][$rid][$key]['#title'] = $roles[$rid] . ': ' . $form['permission'][$key]['#markup'];
-      $form['checkboxes'][$rid][$key]['#title_display'] = 'invisible';
-      $row[] = array('data' => drupal_render($form['checkboxes'][$rid][$key]), 'class' => array('checkbox'));
 
-      // Permission markup.
-      $row[] = array(
-        'data'  => drupal_render($form['permission'][$key]),
-        'class' => array('permission'),
-      );
+    // Single role.
+    $rid = reset($rids);
+
+    $roles = user_roles();
+    foreach (element_children($form['permission']) as $key) {
+        $row = array();
+        // Module name
+        if (is_numeric($key)) {
+            $row[] = array('data' => drupal_render($form['permission'][$key]), 'class' => array('module'), 'id' => 'module-' . $form['permission'][$key]['#id'], 'colspan' => count($form['role_names']['#value']) + 1);
+        }
+        else {
+            // Permission row.
+            // Checkbox.
+            $form['checkboxes'][$rid][$key]['#title'] = $roles[$rid] . ': ' . $form['permission'][$key]['#markup'];
+            $form['checkboxes'][$rid][$key]['#title_display'] = 'invisible';
+            $row[] = array('data' => drupal_render($form['checkboxes'][$rid][$key]), 'class' => array('checkbox'));
+
+            // Permission markup.
+            $row[] = array(
+                'data'  => drupal_render($form['permission'][$key]),
+                'class' => array('permission'),
+            );
+        }
+        $rows[] = $row;
     }
-    $rows[] = $row;
-  }
 
-  // Header: role name before 'Permission'.
-  $header[] = array('data' => drupal_render($form['role_names'][$rid]), 'class' => array('checkbox'));
-  $header[] = (t('Permission'));
+    // Header: role name before 'Permission'.
+    $header[] = array('data' => drupal_render($form['role_names'][$rid]), 'class' => array('checkbox'));
+    $header[] = (t('Permission'));
 
-  $output = theme('system_compact_link');
-  $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'permissions')));
-  $output .= drupal_render_children($form);
-  return $output;
+    $output = theme('system_compact_link');
+    $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'permissions')));
+    $output .= drupal_render_children($form);
+    return $output;
 }
 
 /**
@@ -129,29 +130,30 @@ function at_ui_user_admin_permissions($variables) {
  *
  * @return string
  */
-function at_ui_tool_links() {
-  drupal_add_css(drupal_get_path('module', 'at_ui') . '/misc/css/at-ui.links.css');
+function at_ui_tool_links()
+{
+    drupal_add_css(drupal_get_path('module', 'at_ui') . '/misc/css/at-ui.links.css');
 
-  $items = array(
-    'at_ui' => array('data'     => 'AT UI module', 'children' => array(
-        l('SQL Playround', 'at/sql'),
-        l('Twig template playround', 'at/twig'),
-        l('Explore icons', 'at/icon'),
-        l('Entity templates', 'admin/reports/documentation/at_base/entity-templates'),
-        l('Routes', 'admin/reports/documentation/at_base'),
-        l('Source code', 'admin/reports/documentation/at_base/source')
-      )),
-    'devel' => array('data' => 'Devel module')
-  );
+    $items = array(
+        'at_ui' => array('data'     => 'AT UI module', 'children' => array(
+                l('SQL Playround', 'at/sql'),
+                l('Twig template playround', 'at/twig'),
+                l('Explore icons', 'at/icon'),
+                l('Entity templates', 'admin/reports/documentation/at_base/entity-templates'),
+                l('Routes', 'admin/reports/documentation/at_base'),
+                l('Source code', 'admin/reports/documentation/at_base/source')
+            )),
+        'devel' => array('data' => 'Devel module')
+    );
 
-  foreach (devel_menu() as $path => $info) {
-    if (0 === strpos($path, 'devel/')) {
-      $items['devel']['children'][] = l($info['title'], $path);
+    foreach (devel_menu() as $path => $info) {
+        if (0 === strpos($path, 'devel/')) {
+            $items['devel']['children'][] = l($info['title'], $path);
+        }
     }
-  }
 
-  return theme('item_list', array(
-    'items'      => $items,
-    'attributes' => array('class' => array('at-ui-links'))
-  ));
+    return theme('item_list', array(
+        'items'      => $items,
+        'attributes' => array('class' => array('at-ui-links'))
+    ));
 }
