@@ -22,7 +22,7 @@ function at_ui_form_devel_execute_form_alter(&$form, $form_state)
     );
 
     at_ui_include_codemirror(array('mode/clike/clike.js', 'mode/php/php.js'));
-    drupal_add_js(drupal_get_path('module', 'at_ui') . '/misc/js/devel.php.js');
+    drupal_add_js(drupal_get_path('module', 'at_ui') . '/misc/js/at.codemirror.php.js');
     drupal_add_css(drupal_get_path('module', 'at_ui') . '/misc/css/cm.css');
 }
 

@@ -1,4 +1,4 @@
-(function ($) {
+(function (document, $, CodeMirror) {
 
     $(function () {
         // Hide the form submit button
@@ -8,7 +8,7 @@
             $('#edit-code').val(cm.getValue()).trigger('change');
         };
 
-        var editor = CodeMirror.fromTextArea(document.getElementById('edit-code'), {
+        CodeMirror.fromTextArea(document.getElementById('edit-code'), {
             lineNumbers: true
             , matchBrackets: true
             , viewportMargin: Infinity
@@ -19,4 +19,4 @@
         });
     });
 
-})(jQuery);
+})(document, jQuery, CodeMirror);
