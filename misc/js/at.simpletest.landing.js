@@ -32,11 +32,14 @@
         });
 
         $('#at-test-group-selector').change(function() {
+            var id = $(this).val();
+            
             // hide other
-            $table.find('tr:gt(1)').hide();
+            $table.find('tr.simpletest-group, tr:gt(1)').hide();
 
             // show selected
-            $('.'+ $(this).val() +'-test').show();
+            $('#'+ id).parent().show();
+            $('.'+ id +'-test').show();
         });
         
         $('#at-test-group-selector').val(group).trigger('change');
