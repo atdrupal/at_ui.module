@@ -1,73 +1,9 @@
 <?php
 
-require_once dirname(__FILE__) . '/at_ui.debug.inc';
-require_once dirname(__FILE__) . '/at_ui.codemirror.develphp.inc';
-require_once dirname(__FILE__) . '/at_ui.codemirror.inc';
-
-/**
- * Implements hook_init()
- */
-function at_ui_init() {
-  if (at_debug() && !defined('AT_DISABLE_DEVELOPMENT_INDICATOR') && empty($_GET['no-indicator'])) {
-    drupal_add_css(drupal_get_path('module', 'at_ui') . '/misc/css/dev.indicator.css');
-    drupal_add_js(drupal_get_path('module', 'at_ui') . '/misc/js/dev.indicator.js');
-  }
-}
-
-/**
- * Implements hook_admin_paths()
- */
-function at_ui_admin_paths() {
-  return array('at/*' => TRUE);
-}
-
-/**
- * Implements hook_menu()
- */
-function at_ui_menu_alter(&$menu) {
-  $menu['user/%user/devel']['page callback']
-    = $menu['user/%user/devel/render']['page callback']
-    = $menu['node/%node/devel']['page callback']
-    = $menu['node/%node/devel/render']['page callback']
-    = $menu['comment/%comment/devel']['page callback']
-    = $menu['comment/%comment/devel/render']['page callback']
-    = $menu['taxonomy/term/%taxonomy_term/devel']['page callback']
-    = $menu['taxonomy/term/%taxonomy_term/devel/render']['page callback']
-    = 'atdr';
-
-  $menu['user/%user/devel']['page arguments']
-    = $menu['user/%user/devel/render']['page arguments']
-    = $menu['node/%node/devel']['page arguments']
-    = $menu['node/%node/devel/render']['page arguments']
-    = $menu['comment/%comment/devel']['page arguments']
-    = $menu['comment/%comment/devel/render']['page arguments']
-    = $menu['taxonomy/term/%taxonomy_term/devel']['page arguments']
-    = $menu['taxonomy/term/%taxonomy_term/devel/render']['page arguments']
-    = array(1);
-
-  $menu['taxonomy/term/%taxonomy_term/devel']['page arguments']
-    = $menu['taxonomy/term/%taxonomy_term/devel/render']['page arguments']
-    = array(2);
-
-  if (isset($menu['block/%bean_delta/devel'])) {
-    $menu['block/%bean_delta/devel']['page callback'] = 'atdr';
-    $menu['block/%bean_delta/devel/render']['page callback'] = 'atdr';
-    $menu['block/%bean_delta/devel']['page arguments'] = array(1);
-    $menu['block/%bean_delta/devel/render']['page arguments'] = array(1);
-  }
-}
-
-/**
- * Implements hook_theme_registry_alter().
- * Move user_admin_permissions theme's processing to new place.
- *
- * @param type $theme_registry
- */
-function at_ui_theme_registry_alter(&$theme_registry) {
-  $theme_registry['user_admin_permissions']['theme path'] = drupal_get_path('module', 'at_ui');
-  $theme_registry['user_admin_permissions']['function'] = 'at_ui_user_admin_permissions';
-  unset($theme_registry['user_admin_permissions']['includes']);
-}
+require_once dirname(__FILE__) . '/includes/at_ui.hooks.php';
+require_once dirname(__FILE__) . '/includes/at_ui.debug.php';
+require_once dirname(__FILE__) . '/at_ui.codemirror.develphp.php';
+require_once dirname(__FILE__) . '/at_ui.codemirror.php';
 
 /**
  * Move checkboxes to the left of the permissions if there is only one role.
